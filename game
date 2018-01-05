@@ -1,0 +1,69 @@
+#! /usr/bin/env ruby
+
+class Games
+  GAME_PATH = "games/"
+  def initialize
+    @list = get_names
+  end
+
+  def display_list
+    @list.each do |item|
+      puts item
+    end
+  end
+
+  def get_names
+    names = Dir.glob("games/*.rb");
+    names.map! do |name|
+      File.basename(name, '.rb')
+    end
+    names.sort!
+  end
+
+  def play_game(name)
+    system("ruby #{name}.rb")
+  end
+end
+
+class CLI
+  def initialize
+    @application = Games.new
+  end
+
+  def run(arguments)
+    command = arguments.shift
+    case command
+    when "list"
+      @application.display_list
+    when "play"
+      game = arguments[0]
+      if game
+        puts Dir.pwd
+        Dir.chdir("#{Dir.pwd}/#{Games::GAME_PATH}")
+        @application.play_game game
+      else
+        puts ">>> You must enter a game name from the list. <<<"
+        display_help
+      end
+    else
+      display_help
+    end
+  end
+
+  def display_help
+    info = <<~HELP
+
+      Terminal Game Selector
+
+      Commands:
+
+      list - prints games available
+      play GAME - launches specified terminal game
+
+    HELP
+
+    puts info
+  end
+end
+
+CLI.new.run(ARGV)
